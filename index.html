@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>حامل الراية</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Changa:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: hero with player card, then a category wall (8 hues, one per field) that drives the challenge list below. */
+:root{
+  --font-display:"Changa","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  --bg:#0a0f1f; --bg-inset:#070b17; --surface:#111831; --surface-2:#18213f; --line:#27325d;
+  --fg:#e9edfb; --muted:#9ba6c8; --accent:#ffb43a; --accent-ink:#1b1203;
+  --ok:#3ddc97; --bad:#ff7b7b; --cat-l:.8; --cat-c:.13;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f3f5fc; --bg-inset:#eaeefa; --surface:#ffffff; --surface-2:#eef1fb; --line:#d3daf0;
+    --fg:#10162e; --muted:#55628c; --accent:#b45f00; --accent-ink:#ffffff;
+    --ok:#0c8556; --bad:#c62f2f; --cat-l:.5; --cat-c:.16; color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f3f5fc; --bg-inset:#eaeefa; --surface:#ffffff; --surface-2:#eef1fb; --line:#d3daf0;
+  --fg:#10162e; --muted:#55628c; --accent:#b45f00; --accent-ink:#ffffff;
+  --ok:#0c8556; --bad:#c62f2f; --cat-l:.5; --cat-c:.16; color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.65;
+  direction:rtl; padding-block:20px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1120px;margin-inline:auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
+p{margin:0}
+.mono{font-family:var(--font-mono);direction:ltr;unicode-bidi:isolate}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ico{width:1.4em;height:1.4em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;font-size:20px}
+.brand svg{width:30px;height:30px}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:14px;color:var(--muted)}
+.pill b{color:var(--accent);font-family:var(--font-mono);font-weight:700;font-size:15px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:start}
+.eyebrow{font-size:13px;letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+h1{font-weight:800;font-size:clamp(52px,9vw,96px);margin:10px 0 18px}
+.lead{font-size:18px;color:var(--muted);max-width:52ch}
+.facts{display:flex;flex-wrap:wrap;gap:0;margin-top:26px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;width:fit-content;max-width:100%}
+.facts div{padding:10px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.facts div+div{border-inline-start:1px solid var(--line)}
+.facts b{font-family:var(--font-mono);font-size:24px;line-height:1.2;font-weight:700}
+.facts span{font-size:13px;color:var(--muted)}
+.format{margin-top:20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:var(--muted);font-size:15px}
+.format code{font-family:var(--font-mono);direction:ltr;background:var(--bg-inset);border:1px solid var(--line);border-radius:8px;padding:3px 10px;color:var(--fg);font-size:14px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px}
+.player{display:flex;flex-direction:column;gap:16px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.input{width:100%;background:var(--bg-inset);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:0}
+.input::placeholder{color:var(--muted);opacity:.7}
+.score-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.score{font-family:var(--font-mono);font-weight:700;font-size:44px;line-height:1;direction:ltr}
+.score small{font-size:16px;color:var(--muted);font-weight:500}
+.level{font-family:var(--font-display);font-weight:800;font-size:20px;color:var(--accent)}
+.meter{display:flex;gap:4px;direction:rtl}
+.seg{flex:1;height:10px;background:var(--bg-inset);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.seg i{display:block;height:100%;width:0;background:var(--c);transition:width .5s ease}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{cursor:pointer;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:8px 14px;font-size:14px;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--fg);line-height:1.4}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.danger{color:var(--bad)}
+.note{font-size:13px;color:var(--muted)}
+
+/* categories */
+.sec-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.sec-title h2{font-size:28px;font-weight:800}
+.cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.cat{--c:oklch(var(--cat-l) var(--cat-c) var(--h));text-align:start;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .15s,background .15s}
+.cat:hover{border-color:color-mix(in oklab,var(--c) 60%,var(--line))}
+.cat[aria-pressed="true"]{border-color:var(--c);background:color-mix(in oklab,var(--c) 10%,var(--surface))}
+.cat .badge{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--c);background:color-mix(in oklab,var(--c) 16%,transparent)}
+.cat .badge .ico{width:26px;height:26px}
+.cat h3{font-size:19px;font-weight:600}
+.cat .en{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.cat .prog{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:auto}
+.cat .prog b{font-family:var(--font-mono);color:var(--fg);font-weight:500}
+.cat .bar{height:4px;background:var(--bg-inset);border-radius:2px;overflow:hidden}
+.cat .bar i{display:block;height:100%;background:var(--c);width:0}
+
+/* arena */
+.arena{--c:oklch(var(--cat-l) var(--cat-c) var(--h))}
+.arena-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.arena-head .badge{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;color:var(--c);background:color-mix(in oklab,var(--c) 16%,transparent)}
+.arena-head .badge .ico{width:30px;height:30px}
+.arena-head h2{font-size:30px;font-weight:800}
+.arena-head p{color:var(--muted);font-size:15px}
+.list{display:flex;flex-direction:column;gap:16px}
+.ch{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.ch.done{border-color:color-mix(in oklab,var(--ok) 55%,var(--line))}
+.ch-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ch-head h3{font-size:22px;font-weight:600;flex:1;min-width:140px}
+.lvl{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 12px 2px 10px}
+.dots{display:inline-flex;gap:3px;direction:ltr}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--c)}
+.pts{font-size:15px;color:var(--accent);font-weight:700}
+.ch.done .pts{color:var(--ok)}
+.tick{width:24px;height:24px;border-radius:50%;background:var(--ok);color:var(--bg);display:grid;place-items:center}
+.tick .ico{width:15px;height:15px;stroke-width:2.6}
+.desc{color:var(--fg);opacity:.92}
+.code{direction:ltr;text-align:left;font-family:var(--font-mono);font-size:13px;line-height:1.6;background:var(--bg-inset);border:1px solid var(--line);border-radius:10px;padding:14px;margin:0;overflow-x:auto;white-space:pre;tab-size:4;unicode-bidi:plaintext}
+.code.wrapx{white-space:pre-wrap;word-break:break-all}
+.stego-box{display:flex;flex-direction:column;gap:10px}
+.stego-box canvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;background:var(--bg-inset)}
+.stego-box label{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
+.stego-box input[type=range]{flex:1;accent-color:var(--accent);min-width:0}
+.hintrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.hint{font-size:14px;color:var(--muted);background:var(--bg-inset);border:1px dashed var(--line);border-radius:10px;padding:8px 12px}
+.sub{display:flex;gap:8px;flex-wrap:wrap}
+.sub .input{flex:1;min-width:180px;font-family:var(--font-mono);direction:ltr;text-align:left}
+.fb{font-size:14px;min-height:1.4em}
+.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+.pop{animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.985)}50%{transform:scale(1.008)}100%{transform:scale(1)}}
+
+/* tools */
+details.tools{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px 20px}
+details.tools summary{cursor:pointer;padding:12px 0;font-family:var(--font-display);font-weight:600;font-size:20px;list-style:none;display:flex;align-items:center;gap:10px}
+details.tools summary::-webkit-details-marker{display:none}
+details.tools[open] summary{border-bottom:1px solid var(--line);margin-bottom:16px}
+.tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-bottom:16px}
+.tool-grid textarea{width:100%;min-height:130px;resize:vertical;background:var(--bg-inset);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--font-mono);font-size:13px;direction:ltr;text-align:left}
+.tool-ctl{display:flex;flex-wrap:wrap;gap:8px;grid-column:1/-1}
+.tool-ctl select,.tool-ctl input{background:var(--bg-inset);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.tool-ctl input{width:120px;font-family:var(--font-mono);direction:ltr}
+
+/* invite */
+.invite{display:flex;flex-direction:column;gap:14px}
+.invite h2{font-size:24px;font-weight:800}
+.invite .row{display:flex;gap:8px;flex-wrap:wrap}
+.invite .input{flex:1;min-width:220px;direction:ltr;text-align:left;font-family:var(--font-mono);font-size:13px}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .cats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .tool-grid{grid-template-columns:minmax(0,1fr)}
+  .facts div{padding:8px 14px}
+  .facts b{font-size:20px}
+  .score{font-size:38px}
+  .arena-head h2{font-size:24px}
+  .card{padding:18px}
+}
+@media (prefers-reduced-motion: reduce){
+  .pop{animation:none}.seg i{transition:none}
+}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-web" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3 3.2 15 0 18M12 3c-3.2 3-3.2 15 0 18"/></symbol>
+  <symbol id="i-crypto" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></symbol>
+  <symbol id="i-forensics" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6M7.5 10h5M10 7.5v5"/></symbol>
+  <symbol id="i-reverse" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/></symbol>
+  <symbol id="i-pwn" viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="12" rx="4"/><path d="M8 12H4M16 12h4M8 17H5M16 17h3M9 8L7 5M15 8l2-3M12 8v12"/></symbol>
+  <symbol id="i-osint" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-stego" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></symbol>
+  <symbol id="i-net" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5l-6 5.5M12 11.5l6 5.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5 5L3 18l3 3 6.5-6.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5z"/></symbol>
+</svg>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 3v26" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9 5h16l-4 6 4 6H9z" fill="var(--accent)"/></svg>
+      <span>حامل الراية</span>
+    </div>
+    <div class="pill">النقاط <b id="top-score" class="mono">0</b></div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow mono">Capture The Flag</p>
+      <h1>حامل الراية</h1>
+      <p class="lead">مسابقة التقاط الأعلام في الأمن السيبراني. اختر مجالاً، افحص الأدلة، واكتب الـ flag الذي تعثر عليه. كل تحدٍّ يعمل داخل هذه الصفحة ولا يحتاج إلى أي برنامج إضافي.</p>
+      <div class="facts">
+        <div><b id="f-ch">24</b><span>تحدياً</span></div>
+        <div><b>8</b><span>مجالات</span></div>
+        <div><b id="f-pts">4500</b><span>نقطة</span></div>
+      </div>
+      <div class="format"><span>صيغة الإجابة</span><code>FLAG{...}</code><span>ولا يهم حجم الأحرف.</span></div>
+    </div>
+
+    <aside class="card player" aria-label="بطاقة المتسابق">
+      <div class="field">
+        <label for="pname">اسم المتسابق</label>
+        <input id="pname" class="input" maxlength="30" placeholder="اكتب اسمك" autocomplete="off">
+      </div>
+      <div class="score-row">
+        <div class="score"><span id="p-score">0</span> <small>/ <span id="p-max">4500</span></small></div>
+        <div class="level" id="p-level">مستكشف</div>
+      </div>
+      <div class="meter" id="meter" aria-hidden="true"></div>
+      <div class="meta"><span id="p-solved">0 من 24 محلولة</span><span id="p-hints"></span></div>
+      <div class="btns">
+        <button class="btn primary" id="share-result" type="button">نسخ نتيجتي</button>
+        <a class="btn" id="wa-result" href="#" target="_blank" rel="noopener">إرسال عبر واتساب</a>
+        <button class="btn danger" id="reset" type="button">إعادة البدء</button>
+      </div>
+      <p class="note">تُحفظ نتيجتك في متصفحك على هذا الجهاز فقط. أرسل نسخة منها للمشرف عند الانتهاء.</p>
+    </aside>
+  </section>
+
+  <section aria-labelledby="cats-h">
+    <div class="sec-title"><h2 id="cats-h">المجالات</h2><span class="note">اختر مجالاً لعرض تحدياته</span></div>
+    <div class="cats" id="cats"></div>
+  </section>
+
+  <section class="arena" id="arena" aria-live="polite"></section>
+
+  <details class="tools" id="tools">
+    <summary><svg class="ico" aria-hidden="true"><use href="#i-tool"/></svg>صندوق الأدوات</summary>
+    <div class="tool-grid">
+      <div class="tool-ctl">
+        <select id="t-op" aria-label="العملية"></select>
+        <input id="t-n" type="number" value="13" min="-25" max="25" aria-label="الإزاحة" hidden>
+        <input id="t-key" placeholder="مفتاح hex مثل 13 37" aria-label="المفتاح" hidden>
+      </div>
+      <textarea id="t-in" placeholder="الإدخال" spellcheck="false" aria-label="الإدخال"></textarea>
+      <textarea id="t-out" placeholder="الناتج" readonly aria-label="الناتج"></textarea>
+    </div>
+  </details>
+
+  <section class="card invite">
+    <h2>ادعُ زملاءك</h2>
+    <p class="note">الصق رابط المسابقة ثم أرسل الدعوة عبر واتساب، أو انسخ الرسالة وألصقها في بريد إلكتروني.</p>
+    <div class="row"><input id="inv-link" class="input" aria-label="رابط المسابقة"></div>
+    <div class="btns">
+      <a class="btn primary" id="wa-invite" href="#" target="_blank" rel="noopener">مشاركة عبر واتساب</a>
+      <button class="btn" id="copy-invite" type="button">نسخ رسالة الدعوة</button>
+      <button class="btn" id="copy-link" type="button">نسخ الرابط</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const DATA = {"cats":[{"id":"web","ar":"\u0627\u0633\u062a\u063a\u0644\u0627\u0644 \u0627\u0644\u0648\u064a\u0628","en":"Web Exploitation","h":255,"ico":"web","blurb":"\u062b\u063a\u0631\u0627\u062a \u0627\u0644\u0645\u0648\u0627\u0642\u0639 \u0648\u0637\u0644\u0628\u0627\u062a HTTP \u0648\u0642\u0648\u0627\u0639\u062f \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a."},{"id":"crypto","ar":"\u0627\u0644\u062a\u0634\u0641\u064a\u0631","en":"Cryptography","h":305,"ico":"crypto","blurb":"\u0634\u064a\u0641\u0631\u0627\u062a \u0643\u0644\u0627\u0633\u064a\u0643\u064a\u0629 \u0648\u062d\u062f\u064a\u062b\u0629 \u0648\u0643\u0633\u0631\u0647\u0627."},{"id":"forensics","ar":"\u0627\u0644\u0623\u062f\u0644\u0629 \u0627\u0644\u0631\u0642\u0645\u064a\u0629","en":"Digital Forensics","h":195,"ico":"forensics","blurb":"\u062a\u062d\u0644\u064a\u0644 \u0627\u0644\u0633\u062c\u0644\u0627\u062a \u0648\u0627\u0644\u0645\u0644\u0641\u0627\u062a \u0648\u0622\u062b\u0627\u0631 \u0627\u0644\u0645\u0647\u0627\u062c\u0645."},{"id":"reverse","ar":"\u0627\u0644\u0647\u0646\u062f\u0633\u0629 \u0627\u0644\u0639\u0643\u0633\u064a\u0629","en":"Reverse Engineering","h":60,"ico":"reverse","blurb":"\u0641\u0647\u0645 \u0627\u0644\u0628\u0631\u0627\u0645\u062c \u0645\u0646 \u0634\u064a\u0641\u0631\u062a\u0647\u0627 \u0623\u0648 \u062a\u062c\u0645\u064a\u0639\u0647\u0627."},{"id":"pwn","ar":"\u0627\u0633\u062a\u063a\u0644\u0627\u0644 \u0627\u0644\u062b\u0646\u0627\u0626\u064a\u0627\u062a","en":"Binary Exploitation","h":22,"ico":"pwn","blurb":"\u0627\u0644\u0630\u0627\u0643\u0631\u0629 \u0648\u0627\u0644\u0645\u0643\u062f\u0633 \u0648\u062b\u063a\u0631\u0627\u062a \u0627\u0644\u0628\u0631\u0627\u0645\u062c \u0627\u0644\u0645\u062a\u0631\u062c\u0645\u0629."},{"id":"osint","ar":"\u0627\u0644\u0627\u0633\u062a\u062e\u0628\u0627\u0631\u0627\u062a \u0627\u0644\u0645\u0641\u062a\u0648\u062d\u0629","en":"OSINT","h":150,"ico":"osint","blurb":"\u062c\u0645\u0639 \u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0645\u0646 \u0645\u0635\u0627\u062f\u0631 \u0639\u0627\u0645\u0629."},{"id":"stego","ar":"\u0625\u062e\u0641\u0627\u0621 \u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0627\u062a","en":"Steganography","h":345,"ico":"stego","blurb":"\u0631\u0633\u0627\u0626\u0644 \u0645\u062e\u0628\u0623\u0629 \u062f\u0627\u062e\u0644 \u0646\u0635\u0648\u0635 \u0648\u0635\u0648\u0631."},{"id":"net","ar":"\u0627\u0644\u0634\u0628\u0643\u0627\u062a","en":"Networking","h":95,"ico":"net","blurb":"\u0628\u0631\u0648\u062a\u0648\u0643\u0648\u0644\u0627\u062a \u0648\u0639\u0646\u0627\u0648\u064a\u0646 \u0648\u062d\u0632\u0645 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a."}],"ch":[{"id":"w1","cat":"web","title":"\u0645\u0644\u0627\u062d\u0638\u0629 \u0627\u0644\u0645\u0637\u0648\u0651\u0631","pts":100,"lvl":1,"desc":"\u0623\u0646\u0647\u0649 \u0645\u0637\u0648\u0651\u0631 \u0645\u0648\u0642\u0639 \u00ab\u0628\u0646\u0643 \u0627\u0644\u0635\u0642\u0631\u00bb \u0639\u0645\u0644\u0647 \u0639\u0644\u0649 \u0639\u062c\u0644 \u0648\u062a\u0631\u0643 \u0645\u0644\u0627\u062d\u0638\u0629 \u062f\u0627\u062e\u0644 \u0634\u064a\u0641\u0631\u0629 \u0627\u0644\u0635\u0641\u062d\u0629. \u062a\u062e\u064a\u0651\u0644 \u0623\u0646\u0643 \u0641\u062a\u062d\u062a \u0645\u0635\u062f\u0631 \u0627\u0644\u0635\u0641\u062d\u0629 (View Source) \u0648\u0648\u062c\u062f\u062a \u0627\u0644\u062a\u0639\u0644\u064a\u0642 \u0627\u0644\u062a\u0627\u0644\u064a. \u0641\u0643 \u062a\u0631\u0645\u064a\u0632\u0647.","hint":"\u0627\u0644\u062a\u0631\u0645\u064a\u0632 \u0627\u0644\u0630\u064a \u064a\u0646\u062a\u0647\u064a \u0628\u0639\u0644\u0627\u0645\u0629 = \u063a\u0627\u0644\u0628\u0627\u064b Base64. \u064a\u0645\u0643\u0646\u0643 \u0627\u0633\u062a\u062e\u062f\u0627\u0645 \u0635\u0646\u062f\u0648\u0642 \u0627\u0644\u0623\u062f\u0648\u0627\u062a.","content":"\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\u003ctitle>Falcon Bank - Login\u003c/title>\u003c/head>\n\u003cbody>\n  \u003cform action=\"/login\" method=\"post\">\n    \u003cinput name=\"username\" placeholder=\"Username\">\n    \u003cinput name=\"password\" type=\"password\">\n    \u003cbutton>Sign in\u003c/button>\n  \u003c/form>\n  \u003c!-- TODO: remove before release: RkxBR3t2aWV3X3NvdXJjZV9pc19wb3dlcn0= -->\n\u003c/body>\n\u003c/html>","kind":"text","h":"33557001141b932b0370030039bf29c765009dffd74012a12208954f6a0fea54"},{"id":"w2","cat":"web","title":"\u062a\u062c\u0627\u0648\u0632 \u0627\u0644\u062f\u062e\u0648\u0644","pts":200,"lvl":2,"desc":"\u0646\u062c\u062d \u0645\u0647\u0627\u062c\u0645 \u0641\u064a \u062a\u062c\u0627\u0648\u0632 \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644 \u0639\u0628\u0631 \u062d\u0642\u0646 SQL. \u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u062a\u0639\u0644\u064a\u0642 -- \u062a\u062c\u0639\u0644 \u0642\u0627\u0639\u062f\u0629 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u062a\u062a\u062c\u0627\u0647\u0644 \u0634\u0631\u0637 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631. \u0623\u0639\u0627\u062f \u0627\u0644\u062e\u0627\u062f\u0645 \u0631\u0645\u0632\u0627\u064b \u0645\u0643\u062a\u0648\u0628\u0627\u064b \u0628\u0627\u0644\u0646\u0638\u0627\u0645 \u0627\u0644\u0633\u0627\u062f\u0633 \u0639\u0634\u0631. \u0641\u0633\u0651\u0631\u0647 \u0644\u062a\u062d\u0635\u0644 \u0639\u0644\u0649 \u0627\u0644\u0640 flag.","hint":"\u0643\u0644 \u0628\u0627\u064a\u062a\u064a\u0646 hex \u064a\u0645\u062b\u0644\u0627\u0646 \u062d\u0631\u0641\u0627\u064b \u0628\u062c\u062f\u0648\u0644 ASCII. \u0645\u062b\u0644\u0627\u064b 46 \u062a\u0639\u0646\u064a F.","content":"# \u0627\u0644\u0634\u064a\u0641\u0631\u0629 \u0627\u0644\u0636\u0639\u064a\u0641\u0629 \u0639\u0644\u0649 \u0627\u0644\u062e\u0627\u062f\u0645\nquery = \"SELECT * FROM users WHERE name='\" + user + \"' AND pass='\" + pw + \"'\"\n\n# \u0637\u0644\u0628 \u0627\u0644\u0645\u0647\u0627\u062c\u0645\nPOST /login HTTP/1.1\nusername=admin'--&password=x\n\n# \u0627\u0644\u0627\u0633\u062a\u0639\u0644\u0627\u0645 \u0628\u0639\u062f \u0627\u0644\u062f\u0645\u062c\nSELECT * FROM users WHERE name='admin'--' AND pass='x'\n\n# \u0631\u062f \u0627\u0644\u062e\u0627\u062f\u0645\nHTTP/1.1 200 OK\n{\"status\":\"ok\",\"token\":\"464c41477b73716c695f617574685f6279706173737d\"}","kind":"text","h":"c0788ef693ae897f569ebad6349b847051b36caf7f80232dda071a5b87b0a4d4"},{"id":"w3","cat":"web","title":"\u0627\u0644\u0631\u0645\u0632 \u0627\u0644\u0645\u0645\u064a\u0632","pts":200,"lvl":2,"desc":"\u062d\u0635\u0644\u062a \u0639\u0644\u0649 \u0631\u0645\u0632 JWT \u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u0639\u0627\u062f\u064a \u0645\u0646 \u0623\u062d\u062f \u0627\u0644\u0645\u0648\u0627\u0642\u0639. \u0647\u0644 \u0645\u062d\u062a\u0648\u0627\u0647 \u0633\u0631\u064a \u0641\u0639\u0644\u0627\u064b\u061f \u0627\u0641\u062d\u0635 \u0627\u0644\u062c\u0632\u0621 \u0627\u0644\u0623\u0648\u0633\u0637 \u0645\u0646\u0647.","hint":"\u064a\u062a\u0643\u0648\u0646 JWT \u0645\u0646 \u062b\u0644\u0627\u062b\u0629 \u0623\u062c\u0632\u0627\u0621 \u062a\u0641\u0635\u0644 \u0628\u064a\u0646\u0647\u0627 \u0646\u0642\u0637\u0629. \u0627\u0644\u062c\u0632\u0621 \u0627\u0644\u0623\u0648\u0633\u0637 \u0647\u0648 \u0627\u0644\u062d\u0645\u0648\u0644\u0629 (Payload) \u0648\u0647\u0648 Base64url.","content":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzM3Iiwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTAwMDAwMDAsImZsYWciOiJGTEFHe2p3dF9pc19zaWduZWRfbm90X2VuY3J5cHRlZH0ifQ.zVd_4lYev_I1BdsLsAYwDHzey9RrwOA8RJr6-sosJb8","kind":"text","h":"069afc858bcbf247cd0d6039e1685457974e6f1567ae0387275cac6922be9eff"},{"id":"c1","cat":"crypto","title":"\u0642\u064a\u0635\u0631 \u0644\u0627 \u064a\u0645\u0648\u062a","pts":100,"lvl":1,"desc":"\u0631\u0633\u0627\u0644\u0629 \u0645\u0634\u0641\u0651\u0631\u0629 \u0628\u0634\u064a\u0641\u0631\u0629 \u0642\u064a\u0635\u0631 (\u0625\u0632\u0627\u062d\u0629 \u062b\u0627\u0628\u062a\u0629 \u0644\u0643\u0644 \u062d\u0631\u0641). \u0627\u0644\u0623\u062d\u0631\u0641 \u0627\u0644\u0623\u0631\u0628\u0639\u0629 \u0627\u0644\u0623\u0648\u0644\u0649 \u064a\u062c\u0628 \u0623\u0646 \u062a\u0635\u0628\u062d FLAG. \u0627\u0643\u062a\u0634\u0641 \u0627\u0644\u0625\u0632\u0627\u062d\u0629 \u0648\u0641\u0643 \u0627\u0644\u0631\u0633\u0627\u0644\u0629.","hint":"\u0625\u0630\u0627 \u0643\u0627\u0646 \u0627\u0644\u062d\u0631\u0641 M \u064a\u0642\u0627\u0628\u0644 F \u0641\u0627\u0644\u0625\u0632\u0627\u062d\u0629 7. \u0627\u0631\u062c\u0639 7 \u062e\u0637\u0648\u0627\u062a \u0644\u0643\u0644 \u062d\u0631\u0641.","content":"MSHN{jhlzhy_zapss_hspcl}","kind":"text","h":"c2207d25e8d7681112c176ddf0d66c91c5fa529f2a940d4a4c4c341de6f74b35"},{"id":"c2","cat":"crypto","title":"\u0645\u0641\u062a\u0627\u062d \u0641\u064a\u062c\u064a\u0646\u064a\u0631","pts":200,"lvl":2,"desc":"\u0634\u064a\u0641\u0631\u0629 \u0641\u064a\u062c\u064a\u0646\u064a\u0631 \u0628\u0627\u0644\u0645\u0641\u062a\u0627\u062d FALCON. \u064a\u062a\u0642\u062f\u0645 \u062d\u0631\u0641 \u0627\u0644\u0645\u0641\u062a\u0627\u062d \u0645\u0639 \u0627\u0644\u0623\u062d\u0631\u0641 \u0641\u0642\u0637\u060c \u0648\u062a\u0628\u0642\u0649 \u0627\u0644\u0631\u0645\u0648\u0632 \u0643\u0645\u0627 \u0647\u064a.","hint":"\u0644\u0643\u0644 \u062d\u0631\u0641 \u0645\u0634\u0641\u0651\u0631: \u0627\u0637\u0631\u062d \u0645\u0648\u0636\u0639 \u062d\u0631\u0641 \u0627\u0644\u0645\u0641\u062a\u0627\u062d (A=0) \u0645\u0646 \u0645\u0648\u0636\u0639 \u062d\u0631\u0641 \u0627\u0644\u0634\u064a\u0641\u0631\u0629.","content":"Key: FALCON\nCipher: KLLI{jvleygfr_sepfg_n_pej}","kind":"text","h":"f41df75b4c0dc40821dd61380f77fc6c2322a7881f38d3ff85c7e17523a5f582"},{"id":"c3","cat":"crypto","title":"\u0627\u0644\u0645\u0641\u062a\u0627\u062d \u0627\u0644\u0645\u062a\u0643\u0631\u0631","pts":300,"lvl":3,"desc":"\u0646\u0635 \u0645\u0634\u0641\u0651\u0631 \u0628\u0639\u0645\u0644\u064a\u0629 XOR \u0645\u0639 \u0645\u0641\u062a\u0627\u062d \u0645\u0646 \u0628\u0627\u064a\u062a\u064a\u0646 \u064a\u062a\u0643\u0631\u0631 \u0639\u0644\u0649 \u0637\u0648\u0644 \u0627\u0644\u0646\u0635. \u0646\u0639\u0631\u0641 \u0623\u0646 \u0627\u0644\u0646\u0635 \u0627\u0644\u0623\u0635\u0644\u064a \u064a\u0628\u062f\u0623 \u0628\u0640 FLAG{ . \u0627\u0633\u062a\u0646\u062a\u062c \u0627\u0644\u0645\u0641\u062a\u0627\u062d \u062b\u0645 \u0641\u0643 \u0627\u0644\u0646\u0635 \u0643\u0627\u0645\u0644\u0627\u064b.","hint":"\u0628\u0627\u064a\u062a\u0627\u062a \u0627\u0644\u0634\u064a\u0641\u0631\u0629 XOR \u0628\u0627\u064a\u062a\u0627\u062a FLAG{ \u062a\u0643\u0634\u0641 \u0627\u0644\u0645\u0641\u062a\u0627\u062d. \u064a\u0648\u062c\u062f \u0641\u064a \u0635\u0646\u062f\u0648\u0642 \u0627\u0644\u0623\u062f\u0648\u0627\u062a \u062e\u064a\u0627\u0631 XOR \u0628\u0645\u0641\u062a\u0627\u062d hex.","content":"Cipher (hex): 557b5270684576477656675e7d504c5c764e4c4f7c454c51725e7f4a","kind":"text","h":"4e84a3e86f0ee7aaddbe24b155a1c05690ffa34e0786133aa591df55bf8fc81a"},{"id":"f1","cat":"forensics","title":"\u0633\u062c\u0644 \u0627\u0644\u0627\u0642\u062a\u062d\u0627\u0645","pts":100,"lvl":1,"desc":"\u0648\u0635\u0644\u0643 \u0633\u062c\u0644 \u062f\u062e\u0648\u0644 SSH \u0645\u0646 \u062e\u0627\u062f\u0645 \u062a\u0639\u0631\u0636 \u0644\u0647\u062c\u0648\u0645. \u062d\u062f\u062f \u0639\u0646\u0648\u0627\u0646 IP \u0627\u0644\u062e\u0627\u0631\u062c\u064a \u0627\u0644\u0630\u064a \u0646\u062c\u062d \u0628\u0627\u0644\u062f\u062e\u0648\u0644 \u0628\u0639\u062f \u0633\u0644\u0633\u0644\u0629 \u0645\u062d\u0627\u0648\u0644\u0627\u062a \u0641\u0627\u0634\u0644\u0629. \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{ip}.","hint":"\u062a\u062c\u0627\u0647\u0644 \u0627\u0644\u0639\u0646\u0627\u0648\u064a\u0646 \u0627\u0644\u062f\u0627\u062e\u0644\u064a\u0629 \u0627\u0644\u062a\u064a \u062a\u0628\u062f\u0623 \u0628\u0640 10. \u0648\u062a\u062c\u0627\u0647\u0644 \u0627\u0644\u0639\u0646\u0627\u0648\u064a\u0646 \u0627\u0644\u062a\u064a \u0644\u0645 \u062a\u0646\u062c\u062d \u0623\u0628\u062f\u0627\u064b.","content":"Nov 12 01:02:44 srv01 sshd[811]: Accepted publickey for deploy from 10.0.0.5 port 50422 ssh2\nNov 12 02:13:05 srv01 sshd[1017]: Failed password for root from 45.9.148.21 port 52114 ssh2\nNov 12 02:13:07 srv01 sshd[1017]: Failed password for root from 45.9.148.21 port 52115 ssh2\nNov 12 02:13:09 srv01 sshd[1019]: Invalid user test from 203.0.113.5 port 61200\nNov 12 02:13:11 srv01 sshd[1017]: Failed password for root from 45.9.148.21 port 52118 ssh2\nNov 12 02:14:20 srv01 sshd[1030]: Failed password for admin from 185.220.101.7 port 40018 ssh2\nNov 12 02:14:23 srv01 sshd[1030]: Failed password for admin from 185.220.101.7 port 40019 ssh2\nNov 12 02:14:26 srv01 sshd[1030]: Failed password for admin from 185.220.101.7 port 40020 ssh2\nNov 12 02:14:31 srv01 sshd[1030]: Failed password for admin from 185.220.101.7 port 40021 ssh2\nNov 12 02:14:58 srv01 sshd[1033]: Accepted password for admin from 185.220.101.7 port 40022 ssh2\nNov 12 02:15:10 srv01 sudo:   admin : TTY=pts/0 ; COMMAND=/bin/cat /etc/shadow","kind":"text","h":"03b6ca3841aee72f01443113206661ca0b67a390f46cb4e96c7b519b33aa5fd0"},{"id":"f2","cat":"forensics","title":"\u062a\u0648\u0642\u064a\u0639 \u0627\u0644\u0645\u0644\u0641","pts":200,"lvl":2,"desc":"\u0639\u062b\u0631 \u0627\u0644\u0645\u062d\u0642\u0642 \u0639\u0644\u0649 \u0645\u0644\u0641 \u0628\u0644\u0627 \u0627\u0645\u062a\u062f\u0627\u062f. \u0647\u0630\u0647 \u0628\u0627\u064a\u062a\u0627\u062a\u0647 \u0627\u0644\u0623\u0648\u0644\u0649 \u0628\u0635\u064a\u063a\u0629 hexdump. \u062a\u0639\u0631\u0651\u0641 \u0639\u0644\u0649 \u0646\u0648\u0639 \u0627\u0644\u0645\u0644\u0641 \u0645\u0646 \u062a\u0648\u0642\u064a\u0639\u0647\u060c \u062b\u0645 \u0627\u0628\u062d\u062b \u0641\u064a \u0639\u0645\u0648\u062f \u0627\u0644\u0646\u0635 \u0639\u0646 \u062a\u0639\u0644\u064a\u0642 \u0645\u062e\u0641\u064a \u0628\u062f\u0627\u062e\u0644\u0647.","hint":"\u0627\u0644\u062a\u0648\u0642\u064a\u0639 89 50 4E 47 \u064a\u0639\u0648\u062f \u0644\u0635\u064a\u063a\u0629 PNG. \u0627\u0644\u062a\u0639\u0644\u064a\u0642 \u0641\u064a \u0627\u0644\u062c\u0632\u0621 tEXt \u0648\u064a\u0645\u062a\u062f \u0639\u0628\u0631 \u0633\u0637\u0631\u064a\u0646.","content":"00000000  89 50 4e 47 0d 0a 1a 0a  00 00 00 0d 49 48 44 52  |.PNG........IHDR|\n00000010  00 00 00 01 00 00 00 01  08 02 00 00 00 90 77 53  |..............wS|\n00000020  de 00 00 00 20 74 45 58  74 43 6f 6d 6d 65 6e 74  |.... tEXtComment|\n00000030  00 46 4c 41 47 7b 6d 61  67 69 63 5f 62 79 74 65  |.FLAG{magic_byte|\n00000040  73 5f 70 6e 67 5f 6f 6b  7d a1 b2 c3 d4           |s_png_ok}....|","kind":"text","h":"4a2cd9dc87e659f02dff7eb20a3b7ed2f9ffe4146a4989af0cc42bcd83783689"},{"id":"f3","cat":"forensics","title":"\u0639\u0628\u062b \u0628\u0627\u0644\u0632\u0645\u0646","pts":300,"lvl":3,"desc":"\u0641\u064a \u0623\u0646\u0638\u0645\u0629 NTFS \u064a\u062d\u062a\u0641\u0638 \u0643\u0644 \u0645\u0644\u0641 \u0628\u062a\u0627\u0631\u064a\u062e\u064a \u0625\u0646\u0634\u0627\u0621: SI (\u064a\u0633\u062a\u0637\u064a\u0639 \u0623\u064a \u0628\u0631\u0646\u0627\u0645\u062c \u062a\u0639\u062f\u064a\u0644\u0647) \u0648FN (\u064a\u0635\u0639\u0628 \u062a\u063a\u064a\u064a\u0631\u0647). \u0625\u0630\u0627 \u0627\u062e\u062a\u0644\u0641 \u0627\u0644\u062a\u0627\u0631\u064a\u062e\u0627\u0646 \u0628\u0634\u0643\u0644 \u0643\u0628\u064a\u0631 \u0641\u0647\u0630\u0627 \u062f\u0644\u064a\u0644 \u0639\u0644\u0649 \u0627\u0644\u062a\u0644\u0627\u0639\u0628 (Timestomping). \u062d\u062f\u062f \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0645\u062a\u0644\u0627\u0639\u064e\u0628 \u0628\u0647. \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{\u0627\u0633\u0645_\u0627\u0644\u0645\u0644\u0641_\u0628\u062f\u0648\u0646_\u0627\u0644\u0627\u0645\u062a\u062f\u0627\u062f}.","hint":"\u0627\u0628\u062d\u062b \u0639\u0646 \u0627\u0644\u0635\u0641 \u0627\u0644\u0630\u064a \u064a\u062e\u062a\u0644\u0641 \u0641\u064a\u0647 SI \u0639\u0646 FN.","content":"File                  SI_created           FN_created\nbudget_q3.xlsx        2026-10-02 09:11     2026-10-02 09:11\nnotes.txt             2026-10-05 16:40     2026-10-05 16:40\ninvoice_8841.pdf      2019-01-01 00:00     2026-11-09 23:58\nphoto_001.jpg         2026-09-18 12:30     2026-09-18 12:30\nreport_final.docx     2026-10-28 08:15     2026-10-28 08:15\nbackup.zip            2026-11-01 02:00     2026-11-01 02:00","kind":"text","h":"6e61cb09f1c366d74fd3912a22e5aef7b8e7d42ec87c7d6480fc837f58d9607b"},{"id":"r1","cat":"reverse","title":"\u0641\u0627\u062d\u0635 \u0643\u0644\u0645\u0629 \u0627\u0644\u0633\u0631","pts":200,"lvl":2,"desc":"\u0647\u0630\u0647 \u062f\u0627\u0644\u0629 \u062a\u062a\u062d\u0642\u0642 \u0645\u0646 \u0643\u0644\u0645\u0629 \u0627\u0644\u0633\u0631\u060c \u0648\u0643\u0644\u0645\u0629 \u0627\u0644\u0633\u0631 \u0627\u0644\u0635\u062d\u064a\u062d\u0629 \u0647\u064a \u0627\u0644\u0640 flag \u0646\u0641\u0633\u0647. \u0627\u0639\u0643\u0633 \u0627\u0644\u0639\u0645\u0644\u064a\u0629: \u0627\u0637\u0631\u062d \u0631\u0642\u0645 \u0627\u0644\u0645\u0648\u0636\u0639 \u0645\u0646 \u0643\u0644 \u0642\u064a\u0645\u0629 \u0641\u064a \u0627\u0644\u0642\u0627\u0626\u0645\u0629.","hint":"\u0627\u0644\u0642\u064a\u0645\u0629 \u0627\u0644\u0623\u0648\u0644\u0649 70 \u062a\u0642\u0627\u0628\u0644 \u0627\u0644\u062d\u0631\u0641 F \u0639\u0646\u062f \u0627\u0644\u0645\u0648\u0636\u0639 0. \u0627\u0644\u0642\u064a\u0645\u0629 \u0627\u0644\u062b\u0627\u0646\u064a\u0629 77 \u0646\u0627\u0642\u0635 1 \u062a\u0639\u0637\u064a L.","content":"def check(s):\n    if len(s) != 29:\n        return False\n    t = [(ord(c) + i) % 256 for i, c in enumerate(s)]\n    return t == [70, 77, 67, 74, 127, 119, 107, 125, 109, 123, 125, 112, 107, 114, 124, 118, 121, 127, 119, 120, 134, 126, 132, 126, 119, 127, 143, 137, 153]\n","kind":"text","h":"14f48abcc815a937c3d71830ba8cd1659a6af2176a7c64475269260c1592f57c"},{"id":"r2","cat":"reverse","title":"\u062d\u0644\u0642\u0629 \u0627\u0644\u062c\u0645\u0639","pts":100,"lvl":1,"desc":"\u0645\u0627 \u0642\u064a\u0645\u0629 EAX \u0639\u0646\u062f \u0627\u0646\u062a\u0647\u0627\u0621 \u0647\u0630\u0627 \u0627\u0644\u0645\u0642\u0637\u0639 \u0628\u0644\u063a\u0629 \u0627\u0644\u062a\u062c\u0645\u064a\u0639\u061f \u0627\u0643\u062a\u0628 FLAG{\u0627\u0644\u0642\u064a\u0645\u0629}.","hint":"\u0627\u0644\u062d\u0644\u0642\u0629 \u062a\u0639\u0645\u0644 10 \u0645\u0631\u0627\u062a\u060c \u0648\u0641\u064a \u0643\u0644 \u0645\u0631\u0629 \u064a\u0632\u062f\u0627\u062f EAX \u0628\u0645\u0642\u062f\u0627\u0631 2\u00d7ECX+1.","content":"    mov eax, 0\n    mov ecx, 10\nloop_start:\n    add eax, ecx\n    add eax, ecx\n    inc eax\n    dec ecx\n    jnz loop_start\n    ; EAX = ?","kind":"text","h":"78c40ca752f93bb6407a1fe553e897aa73c55b7d214b23f8e42f81cfe6d4b985"},{"id":"r3","cat":"reverse","title":"\u0627\u0644\u0637\u0628\u0627\u0639\u0629 \u0627\u0644\u0639\u0643\u0633\u064a\u0629","pts":300,"lvl":3,"desc":"\u0628\u0631\u0646\u0627\u0645\u062c C \u064a\u0637\u0628\u0639 \u0627\u0644\u0640 flag \u0644\u0643\u0646\u0647 \u0645\u062e\u0632\u0651\u0646 \u0628\u0635\u0648\u0631\u0629 \u0645\u0645\u0648\u0651\u0647\u0629. \u0627\u0644\u062d\u0644\u0642\u0629 \u062a\u0628\u062f\u0623 \u0645\u0646 \u0622\u062e\u0631 \u0639\u0646\u0635\u0631 \u0641\u064a \u0627\u0644\u0645\u0635\u0641\u0648\u0641\u0629 \u0648\u062a\u0637\u0631\u062d 1 \u0645\u0646 \u0643\u0644 \u0642\u064a\u0645\u0629 \u0642\u0628\u0644 \u0637\u0628\u0627\u0639\u062a\u0647\u0627. \u0646\u0641\u0651\u0630\u0647\u0627 \u064a\u062f\u0648\u064a\u0627\u064b \u0623\u0648 \u0627\u0633\u062a\u0639\u0646 \u0628\u0635\u0646\u062f\u0648\u0642 \u0627\u0644\u0623\u062f\u0648\u0627\u062a.","hint":"\u0622\u062e\u0631 \u0639\u0646\u0635\u0631 \u0641\u064a \u0627\u0644\u0645\u0635\u0641\u0648\u0641\u0629 \u0647\u0648 0x47. \u0627\u0637\u0631\u062d 1 \u0644\u062a\u062d\u0635\u0644 \u0639\u0644\u0649 F.","content":"char enc[] = {0x7e, 0x66, 0x6a, 0x6d, 0x60, 0x73, 0x66, 0x77, 0x66, 0x6f, 0x60, 0x74, 0x71, 0x70, 0x70, 0x6d, 0x7c, 0x48, 0x42, 0x4d, 0x47};\nint n = 21;\n\nfor (int i = n - 1; i >= 0; i--)\n    putchar(enc[i] - 1);","kind":"text","h":"f8ea679a499115f8248ad7fdda13dc14197d9c78a0680b558391af44974980b7"},{"id":"b1","cat":"pwn","title":"\u062d\u062f\u0648\u062f \u0627\u0644\u0645\u062e\u0632\u0646","pts":100,"lvl":1,"desc":"\u0639\u0644\u0649 \u0646\u0638\u0627\u0645 x86-64\u060c \u064a\u0648\u062c\u062f \u0628\u0639\u062f \u0627\u0644\u0645\u0635\u0641\u0648\u0641\u0629 buf \u0645\u0628\u0627\u0634\u0631\u0629 \u0642\u064a\u0645\u0629 RBP \u0627\u0644\u0645\u062d\u0641\u0648\u0638\u0629 (8 \u0628\u0627\u064a\u062a) \u062b\u0645 \u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0639\u0648\u062f\u0629. \u0643\u0645 \u0628\u0627\u064a\u062a\u0627\u064b \u062a\u062d\u062a\u0627\u062c \u0644\u0643\u062a\u0627\u0628\u062a\u0647\u0627 \u062d\u062a\u0649 \u062a\u0635\u0644 \u0625\u0644\u0649 \u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0639\u0648\u062f\u0629\u061f \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{\u0627\u0644\u0639\u062f\u062f}.","hint":"\u062d\u062c\u0645 \u0627\u0644\u0645\u0635\u0641\u0648\u0641\u0629 64 \u0628\u0627\u064a\u062a\u0627\u064b\u060c \u064a\u0636\u0627\u0641 \u0625\u0644\u064a\u0647\u0627 8 \u0628\u0627\u064a\u062a\u0627\u062a.","content":"#include \u003cstdio.h>\n\nvoid vuln() {\n    char buf[64];\n    gets(buf);          // \u0644\u0627 \u064a\u0648\u062c\u062f \u0641\u062d\u0635 \u0644\u0644\u0637\u0648\u0644\n}\n\nint main() { vuln(); return 0; }\n\n// \u0634\u0643\u0644 \u0627\u0644\u0645\u0643\u062f\u0633 (\u0645\u0646 \u0627\u0644\u0623\u062f\u0646\u0649 \u0644\u0644\u0623\u0639\u0644\u0649):\n// [ buf: 64 bytes ][ saved RBP: 8 bytes ][ return address: 8 bytes ]","kind":"text","h":"33e6ad59409cfad16a956dfc0ea6399b412f63ff99af9993df9b250109c2eb69"},{"id":"b2","cat":"pwn","title":"\u0645\u0648\u0627\u0635\u0641\u0627\u062a \u0627\u0644\u0637\u0628\u0627\u0639\u0629","pts":200,"lvl":2,"desc":"\u0627\u0644\u0628\u0631\u0646\u0627\u0645\u062c \u064a\u0645\u0631\u0631 \u0645\u062f\u062e\u0644\u0627\u062a \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645 \u0645\u0628\u0627\u0634\u0631\u0629 \u0625\u0644\u0649 printf. \u0645\u0627 \u0627\u0644\u0645\u062d\u062f\u062f (format specifier) \u0627\u0644\u0630\u064a \u064a\u0642\u0631\u0623 \u0627\u0644\u0648\u0633\u064a\u0637 \u0627\u0644\u062e\u0627\u0645\u0633 \u0645\u0628\u0627\u0634\u0631\u0629 \u0648\u064a\u0637\u0628\u0639\u0647 \u0639\u0644\u0649 \u0647\u064a\u0626\u0629 \u0645\u0624\u0634\u0631 (pointer)\u061f \u0627\u0643\u062a\u0628\u0647 \u0643\u0627\u0645\u0644\u0627\u064b \u062f\u0627\u062e\u0644 FLAG{...}.","hint":"\u0627\u0644\u0635\u064a\u063a\u0629 \u0627\u0644\u0639\u0627\u0645\u0629: %N$ \u064a\u062a\u0628\u0639\u0647\u0627 \u062d\u0631\u0641 \u0627\u0644\u0646\u0648\u0639. \u0648\u062d\u0631\u0641 \u0646\u0648\u0639 \u0627\u0644\u0645\u0624\u0634\u0631 \u0647\u0648 p.","content":"char name[64];\nfgets(name, sizeof(name), stdin);\nprintf(name);        // \u0627\u0644\u062b\u063a\u0631\u0629: \u0627\u0644\u0645\u062f\u062e\u0644 \u064a\u064f\u0633\u062a\u062e\u062f\u0645 \u0643\u0646\u0635 \u062a\u0646\u0633\u064a\u0642\n\n// \u0645\u062b\u0627\u0644: \u0625\u062f\u062e\u0627\u0644 \"%x %x %x\" \u064a\u0637\u0628\u0639 \u0642\u064a\u0645\u0627\u064b \u0645\u0646 \u0627\u0644\u0645\u0643\u062f\u0633","kind":"text","h":"cb2bd581f20679e57593f625e806a3b86175f709966d88c3a2889ef1bb12fefe"},{"id":"b3","cat":"pwn","title":"\u062a\u0631\u062a\u064a\u0628 \u0627\u0644\u0628\u0627\u064a\u062a\u0627\u062a","pts":300,"lvl":3,"desc":"\u0627\u0644\u062f\u0627\u0644\u0629 win() \u0639\u0646\u0648\u0627\u0646\u0647\u0627 0x0000000000401196 \u0639\u0644\u0649 \u0646\u0638\u0627\u0645 x86-64 \u0645\u0646 \u0646\u0648\u0639 Little-Endian. \u0628\u0639\u062f \u0627\u0644\u062d\u0634\u0648 \u064a\u062c\u0628 \u0643\u062a\u0627\u0628\u0629 \u0627\u0644\u0639\u0646\u0648\u0627\u0646 \u0628\u0627\u0644\u062a\u0631\u062a\u064a\u0628 \u0627\u0644\u0630\u064a \u064a\u064f\u062e\u0632\u064e\u0651\u0646 \u0628\u0647 \u0641\u064a \u0627\u0644\u0630\u0627\u0643\u0631\u0629. \u0627\u0643\u062a\u0628 \u0627\u0644\u0628\u0627\u064a\u062a\u0627\u062a \u0627\u0644\u062b\u0645\u0627\u0646\u064a\u0629 \u0628\u0635\u064a\u063a\u0629 hex \u0648\u0628\u062f\u0648\u0646 \u0645\u0633\u0627\u0641\u0627\u062a \u062f\u0627\u062e\u0644 FLAG{...}.","hint":"Little-Endian \u064a\u062e\u0632\u0651\u0646 \u0627\u0644\u0628\u0627\u064a\u062a \u0627\u0644\u0623\u0642\u0644 \u0623\u0647\u0645\u064a\u0629 \u0623\u0648\u0644\u0627\u064b: 96 \u062b\u0645 11 \u062b\u0645 40 \u0648\u0647\u0643\u0630\u0627.","content":"void win() { system(\"/bin/sh\"); }   // \u0627\u0644\u0639\u0646\u0648\u0627\u0646: 0x0000000000401196\n\npayload = b\"A\" * 72 + \u003c\u0639\u0646\u0648\u0627\u0646 win>\n# \u0627\u0643\u062a\u0628 \u0627\u0644\u062c\u0632\u0621 \u003c\u0639\u0646\u0648\u0627\u0646 win> \u0643\u062b\u0645\u0627\u0646\u064a\u0629 \u0628\u0627\u064a\u062a\u0627\u062a hex","kind":"text","h":"b1939efbdb40143acabbb9eb1f528a7227c085c38926cd247f11c6841f0b327a"},{"id":"o1","cat":"osint","title":"\u0646\u0638\u0631\u0629 \u0645\u0646 \u0627\u0644\u0623\u0639\u0644\u0649","pts":100,"lvl":1,"desc":"\u0646\u0634\u0631 \u0645\u0633\u062a\u062e\u062f\u0645 \u0635\u0648\u0631\u0629 \u0634\u0631\u0648\u0642 \u0645\u0639 \u0625\u062d\u062f\u0627\u062b\u064a\u0627\u062a\u0647\u0627 \u0641\u064a \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0648\u0635\u0641\u064a\u0629 (EXIF). \u062d\u062f\u062f \u0627\u0644\u0645\u0639\u0644\u0645 \u0627\u0644\u0634\u0647\u064a\u0631 \u0641\u064a \u0627\u0644\u0635\u0648\u0631\u0629. \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{\u0627\u0633\u0645_\u0627\u0644\u0645\u0639\u0644\u0645} \u0628\u0627\u0644\u0625\u0646\u062c\u0644\u064a\u0632\u064a\u0629 \u0648\u0628\u0634\u0631\u0637\u0629 \u0633\u0641\u0644\u064a\u0629.","hint":"\u0627\u0644\u0635\u0642 \u0627\u0644\u0625\u062d\u062f\u0627\u062b\u064a\u0627\u062a \u0641\u064a \u0623\u064a \u062e\u0631\u064a\u0637\u0629 \u0639\u0644\u0649 \u0627\u0644\u0625\u0646\u062a\u0631\u0646\u062a.","content":"@sara.travels  \u00b7  Instagram\n\"Best sunrise of my life  #bucketlist\"\n\nEXIF\n  Camera      : Phone Camera\n  Taken       : 2026-10-14 05:52\n  GPS         : 25.1972 N, 55.2744 E","kind":"text","h":"48b86022b816501a67f0ed871af2fba7c2f78fc86f44ed9d076b25d0a9b03653"},{"id":"o2","cat":"osint","title":"\u0631\u0623\u0633 \u0627\u0644\u0631\u0633\u0627\u0644\u0629","pts":200,"lvl":2,"desc":"\u0648\u0635\u0644\u062a\u0643 \u0631\u0633\u0627\u0644\u0629 \u062a\u0646\u062a\u062d\u0644 \u0635\u0641\u0629 \u0627\u0644\u062f\u0639\u0645 \u0627\u0644\u0641\u0646\u064a. \u0645\u0646 \u0631\u0624\u0648\u0633 \u0627\u0644\u0628\u0631\u064a\u062f \u062d\u062f\u062f \u0639\u0646\u0648\u0627\u0646 IP \u0644\u0644\u062e\u0627\u062f\u0645 \u0627\u0644\u0630\u064a \u0628\u062f\u0623\u062a \u0645\u0646\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629 \u0641\u0639\u0644\u064a\u0627\u064b. \u062a\u064f\u0642\u0631\u0623 \u0633\u0644\u0633\u0644\u0629 Received \u0645\u0646 \u0627\u0644\u0623\u0633\u0641\u0644 \u0625\u0644\u0649 \u0627\u0644\u0623\u0639\u0644\u0649. \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{ip}.","hint":"\u0627\u0644\u0642\u0641\u0632\u0629 \u0627\u0644\u0623\u0648\u0644\u0649 \u0647\u064a \u0622\u062e\u0631 \u0633\u0637\u0631 Received \u0641\u064a \u0627\u0644\u0631\u0623\u0633.","content":"Received: from mx.school.example (mx.school.example [203.0.113.10])\n    by inbox.school.example; Thu, 12 Nov 2026 08:03:11 +0400\nReceived: from relay2.mailhop.example (relay2.mailhop.example [192.0.2.44])\n    by mx.school.example; Thu, 12 Nov 2026 08:03:09 +0400\nReceived: from [10.1.1.8] (relay7.shadowmail.example [198.51.100.23])\n    by relay2.mailhop.example; Thu, 12 Nov 2026 08:03:05 +0400\nFrom: \"IT Support\" \u003cit-support@school.example>\nReply-To: helpdesk@shadowmail.example\nSubject: Urgent: your password expires today","kind":"text","h":"d6df45b59e70902038d82ee4e0eedf08e36911182cc13b6554a2a65c36acf84e"},{"id":"o3","cat":"osint","title":"\u0627\u0633\u0645 \u0648\u0627\u062d\u062f\u060c \u0645\u0648\u0627\u0642\u0639 \u0643\u062b\u064a\u0631\u0629","pts":200,"lvl":2,"desc":"\u062a\u062a\u0628\u0651\u0639 \u0635\u0627\u062d\u0628 \u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645 n1ghtowl_92 \u0639\u0628\u0631 \u062b\u0644\u0627\u062b\u0629 \u0645\u0648\u0627\u0642\u0639 \u0648\u062c\u0645\u0651\u0639 \u0627\u0644\u0645\u0639\u0644\u0648\u0645\u0627\u062a: \u0627\u0644\u0645\u062f\u064a\u0646\u0629 \u0627\u0644\u062a\u064a \u064a\u0633\u0643\u0646\u0647\u0627 \u0627\u0644\u0622\u0646 \u0648\u0633\u0646\u0629 \u0645\u064a\u0644\u0627\u062f\u0647. \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{\u0627\u0644\u0645\u062f\u064a\u0646\u0629_\u0627\u0644\u0633\u0646\u0629} \u0628\u0627\u0644\u0625\u0646\u062c\u0644\u064a\u0632\u064a\u0629 \u0648\u0628\u0623\u062d\u0631\u0641 \u0635\u063a\u064a\u0631\u0629.","hint":"\u0625\u0630\u0627 \u0643\u0627\u0646 \u0639\u0645\u0631\u0647 28 \u0639\u0627\u0645\u0627\u064b \u0641\u064a \u0645\u0627\u0631\u0633 2026 \u0641\u0633\u0646\u0629 \u0645\u064a\u0644\u0627\u062f\u0647 2026 \u0646\u0627\u0642\u0635 28.","content":"[DevHub]\n  @n1ghtowl_92\n  Bio: Security student. Location: Muscat, Oman. Likes: CTF, coffee.\n\n[PicShare]\n  @n1ghtowl_92  \u00b7  3 Mar 2026\n  \"Turned 28 today! Cake > everything\"\n\n[ForumX]\n  n1ghtowl_92 wrote:\n  \"Anyone from Sohar? I'm in Muscat now but originally from Salalah.\"","kind":"text","h":"0af49166baf60dbd964e3cdad635dd5e063344864f5d7b875ffa7138e2d1d4ea"},{"id":"s1","cat":"stego","title":"\u0623\u0648\u0644 \u0627\u0644\u062d\u0631\u0648\u0641","pts":100,"lvl":1,"desc":"\u0642\u0635\u064a\u062f\u0629 \u0642\u0635\u064a\u0631\u0629 \u062a\u062d\u0645\u0644 \u0631\u0633\u0627\u0644\u0629 \u0645\u062e\u0641\u064a\u0629. \u0623\u062d\u064a\u0627\u0646\u0627\u064b \u064a\u0643\u0648\u0646 \u0627\u0644\u0633\u0631 \u0641\u064a \u0628\u0646\u064a\u0629 \u0627\u0644\u0646\u0635 \u0644\u0627 \u0641\u064a \u0645\u0639\u0646\u0627\u0647. \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{\u0627\u0644\u0643\u0644\u0645\u0629} \u0628\u0623\u062d\u0631\u0641 \u0635\u063a\u064a\u0631\u0629.","hint":"\u0627\u0646\u0638\u0631 \u0625\u0644\u0649 \u0627\u0644\u062d\u0631\u0641 \u0627\u0644\u0623\u0648\u0644 \u0645\u0646 \u0643\u0644 \u0633\u0637\u0631.","content":"Hackers rarely shout, they whisper\nIn plain sight the secret hides\nDon't read only the words\nDig into where each line begins\nEvery first letter tells a story\nNow you know where to look","kind":"text","h":"e95b790d45f4698f9e8b9d406f791a90d411101f6a835902d0dfa979dde42188"},{"id":"s2","cat":"stego","title":"\u0646\u0635 \u0644\u0627 \u064a\u064f\u0631\u0649","pts":200,"lvl":2,"desc":"\u0647\u0630\u0627 \u0627\u0644\u0646\u0635 \u064a\u0628\u062f\u0648 \u0639\u0627\u062f\u064a\u0627\u064b \u0644\u0643\u0646\u0647 \u064a\u062d\u0645\u0644 \u0628\u064a\u0627\u0646\u0627\u062a \u063a\u064a\u0631 \u0645\u0631\u0626\u064a\u0629 (\u0623\u062d\u0631\u0641 \u0639\u0631\u0636 \u0635\u0641\u0631\u064a). \u0627\u0646\u0633\u062e\u0647 \u0628\u0632\u0631 \u0627\u0644\u0646\u0633\u062e\u060c \u0648\u0627\u0644\u0635\u0642\u0647 \u0641\u064a \u0635\u0646\u062f\u0648\u0642 \u0627\u0644\u0623\u062f\u0648\u0627\u062a\u060c \u0648\u0627\u062e\u062a\u0631 \u00ab\u0643\u0634\u0641 \u0627\u0644\u0623\u062d\u0631\u0641 \u0627\u0644\u0635\u0641\u0631\u064a\u0629\u00bb.","hint":"\u0627\u0644\u062d\u0631\u0641 U+200B \u064a\u0645\u062b\u0644 0 \u0648\u0627\u0644\u062d\u0631\u0641 U+200C \u064a\u0645\u062b\u0644 1\u060c \u0648\u0643\u0644 8 \u0628\u062a\u0627\u062a \u062a\u0643\u0648\u0651\u0646 \u062d\u0631\u0641\u0627\u064b.","content":"\u0647\u0630\u0647 \u0631\u200b\u200c\u200b\u200b\u200b\u200c\u200c\u200b\u200b\u200c\u200b\u200b\u200c\u200c\u200b\u200b\u200b\u200c\u200b\u200b\u200b\u200b\u200b\u200c\u200b\u200c\u200b\u200b\u200b\u200c\u200c\u200c\u200b\u200c\u200c\u200c\u200c\u200b\u200c\u200c\u200b\u200c\u200c\u200c\u200c\u200b\u200c\u200b\u200b\u200c\u200c\u200b\u200b\u200c\u200b\u200c\u200b\u200c\u200c\u200c\u200b\u200b\u200c\u200b\u200b\u200c\u200c\u200b\u200c\u200c\u200c\u200c\u200b\u200c\u200b\u200c\u200c\u200c\u200c\u200c\u200b\u200c\u200c\u200c\u200b\u200c\u200c\u200c\u200b\u200c\u200c\u200b\u200c\u200b\u200b\u200c\u200b\u200c\u200c\u200b\u200b\u200c\u200b\u200b\u200b\u200c\u200c\u200c\u200b\u200c\u200b\u200b\u200b\u200c\u200c\u200b\u200c\u200b\u200b\u200b\u200b\u200c\u200b\u200c\u200c\u200c\u200c\u200c\u200b\u200c\u200c\u200b\u200b\u200c\u200c\u200c\u200b\u200c\u200c\u200b\u200c\u200b\u200b\u200b\u200b\u200c\u200c\u200b\u200c\u200c\u200c\u200c\u200b\u200c\u200c\u200c\u200b\u200b\u200c\u200c\u200b\u200c\u200c\u200c\u200b\u200c\u200b\u200b\u200b\u200c\u200c\u200c\u200c\u200c\u200b\u200c\u0633\u0627\u0644\u0629 \u0639\u0627\u062f\u064a\u0629 \u062c\u062f\u0627\u064b \u0648\u0644\u0627 \u064a\u0648\u062c\u062f \u0641\u064a\u0647\u0627 \u0634\u064a\u0621 \u0645\u062e\u0641\u064a","kind":"zw","h":"03760160aec1389e1bec456cd91bf6a51e5f2f2395142481d957c01a4937222d"},{"id":"s3","cat":"stego","title":"\u0635\u0648\u0631\u0629 \u0628\u0644\u0627 \u0645\u0644\u0627\u0645\u062d","pts":200,"lvl":2,"desc":"\u0627\u0644\u0635\u0648\u0631\u0629 \u062a\u062d\u062a\u0648\u064a \u0646\u0635\u0627\u064b \u0628\u0644\u0648\u0646 \u064a\u0643\u0627\u062f \u064a\u0637\u0627\u0628\u0642 \u0627\u0644\u062e\u0644\u0641\u064a\u0629. \u062d\u0631\u0651\u0643 \u0634\u0631\u064a\u0637 \u0627\u0644\u062a\u0628\u0627\u064a\u0646 \u062d\u062a\u0649 \u064a\u0638\u0647\u0631.","hint":"\u0627\u0631\u0641\u0639 \u0627\u0644\u062a\u0628\u0627\u064a\u0646 \u062a\u062f\u0631\u064a\u062c\u064a\u0627\u064b \u062d\u062a\u0649 \u064a\u062a\u0636\u062d \u0627\u0644\u0641\u0631\u0642 \u0628\u064a\u0646 \u0627\u0644\u0644\u0648\u0646\u064a\u0646 \u0627\u0644\u0645\u062a\u0642\u0627\u0631\u0628\u064a\u0646.","content":"RkxBR3tjb250cmFzdF9yZXZlYWxzX2FsbH0=","kind":"img","h":"4b3080283dd023ea00b8ee45d522e02eb6ce398d47b8b30b3eb3bf1686d99f51"},{"id":"n1","cat":"net","title":"\u062d\u062f\u0648\u062f \u0627\u0644\u0634\u0628\u0643\u0629 \u0627\u0644\u0641\u0631\u0639\u064a\u0629","pts":100,"lvl":1,"desc":"\u062c\u0647\u0627\u0632 \u0639\u0646\u0648\u0627\u0646\u0647 192.168.10.77/26. \u0645\u0627 \u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0634\u0628\u0643\u0629 (Network Address) \u0627\u0644\u0630\u064a \u064a\u0646\u062a\u0645\u064a \u0625\u0644\u064a\u0647\u061f \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{ip}.","hint":"\u0643\u062a\u0644\u0629 /26 \u062d\u062c\u0645\u0647\u0627 64 \u0639\u0646\u0648\u0627\u0646\u0627\u064b\u060c \u0648\u0628\u062f\u0627\u064a\u0627\u062a \u0627\u0644\u0643\u062a\u0644 0 \u064864 \u0648128 \u0648192.","content":"IP      : 192.168.10.77\nMask    : /26  (255.255.255.192)","kind":"text","h":"97dc59aa8c63c6190d91d7e49df454917beef1339c22b7b2480f7eb9b69af520"},{"id":"n2","cat":"net","title":"\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0641\u064a \u0627\u0644\u0647\u0648\u0627\u0621","pts":200,"lvl":2,"desc":"\u0627\u0644\u062a\u064f\u0642\u0637\u062a \u062d\u0631\u0643\u0629 \u0645\u0631\u0648\u0631 \u0639\u0644\u0649 \u0634\u0628\u0643\u0629 \u0645\u0642\u0647\u0649. \u0623\u062d\u062f \u0627\u0644\u0637\u0644\u0628\u0627\u062a \u0645\u0631\u0651 \u0639\u0628\u0631 HTTP \u062f\u0648\u0646 \u062a\u0634\u0641\u064a\u0631. \u0627\u0633\u062a\u062e\u0631\u062c \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645. \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{\u0643\u0644\u0645\u0629_\u0627\u0644\u0645\u0631\u0648\u0631}.","hint":"\u062a\u0631\u0645\u064a\u0632 Basic Auth \u0647\u0648 Base64 \u0644\u0644\u0646\u0635 user:password.","content":"No.  Source          Destination     Proto  Info\n1    192.168.1.23    192.168.1.1     DNS    Standard query A portal.cafe.example\n2    192.168.1.1     192.168.1.23    DNS    Standard query response 10.0.0.80\n3    192.168.1.23    10.0.0.80       TCP    51234 -> 80 [SYN]\n4    10.0.0.80       192.168.1.23    TCP    80 -> 51234 [SYN, ACK]\n5    192.168.1.23    10.0.0.80       TCP    51234 -> 80 [ACK]\n6    192.168.1.23    10.0.0.80       HTTP   GET /admin HTTP/1.1\n\n--- \u0645\u062d\u062a\u0648\u0649 \u0627\u0644\u062d\u0632\u0645\u0629 6 ---\nGET /admin HTTP/1.1\nHost: portal.cafe.example\nAuthorization: Basic YWRtaW46UzNjcjN0UGFzcw==\nUser-Agent: Mozilla/5.0","kind":"text","h":"a051517928b65c357f1380a279695c89f555f826eca4ce21b1beb558f0be95dd"},{"id":"n3","cat":"net","title":"\u0631\u062d\u0644\u0629 \u0627\u0644\u062d\u0632\u0645\u0629","pts":300,"lvl":3,"desc":"\u0648\u0635\u0644\u062a\u0643 \u062b\u0644\u0627\u062b\u0629 \u0631\u062f\u0648\u062f ping. \u0627\u0644\u0642\u064a\u0645 \u0627\u0644\u0627\u0628\u062a\u062f\u0627\u0626\u064a\u0629 \u0627\u0644\u0634\u0627\u0626\u0639\u0629 \u0644\u0640 TTL \u0647\u064a 64 \u0648128 \u0648255\u060c \u0648\u062a\u0646\u0642\u0635 \u0628\u0645\u0642\u062f\u0627\u0631 1 \u0639\u0646\u062f \u0643\u0644 \u0642\u0641\u0632\u0629. \u062d\u062f\u062f \u0627\u0644\u062c\u0647\u0627\u0632 \u0627\u0644\u0623\u0628\u0639\u062f (\u0627\u0644\u0623\u0643\u062b\u0631 \u0642\u0641\u0632\u0627\u062a). \u0627\u0644\u0635\u064a\u063a\u0629 FLAG{IP_\u0639\u062f\u062f_\u0627\u0644\u0642\u0641\u0632\u0627\u062a}.","hint":"\u0644\u0643\u0644 \u0631\u062f\u060c \u0627\u062e\u062a\u0631 \u0623\u0642\u0631\u0628 \u0642\u064a\u0645\u0629 \u0627\u0628\u062a\u062f\u0627\u0626\u064a\u0629 \u0623\u0643\u0628\u0631 \u0645\u0646 TTL \u0627\u0644\u0645\u0633\u062a\u0644\u0645 \u062b\u0645 \u0627\u0637\u0631\u062d.","content":"Reply from 10.0.0.1:   bytes=32 time=1ms   TTL=63\nReply from 10.0.4.20:  bytes=32 time=9ms   TTL=125\nReply from 10.9.0.30:  bytes=32 time=38ms  TTL=250","kind":"text","h":"213a6539fcef507dc34e472d6cfd8a7eba9a782f958a7b0157407c88aa8a228a"}]};
+
+(function(){
+const LS='alraya-ctf-v1';
+const LVL={1:'سهل',2:'متوسط',3:'صعب'};
+const HINT_RATE=0.25;
+const $=s=>document.querySelector(s);
+
+function el(tag,props,...kids){
+  const e=document.createElement(tag);
+  for(const [k,v] of Object.entries(props||{})){
+    if(k==='class')e.className=v;
+    else if(k==='text')e.textContent=v;
+    else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);
+    else if(v===true)e.setAttribute(k,'');
+    else if(v!==false&&v!=null)e.setAttribute(k,v);
+  }
+  for(const c of kids.flat()){ if(c==null||c===false)continue; e.append(c.nodeType?c:document.createTextNode(c)); }
+  return e;
+}
+function ico(id){
+  const NS='http://www.w3.org/2000/svg';
+  const s=document.createElementNS(NS,'svg'); s.setAttribute('class','ico'); s.setAttribute('aria-hidden','true');
+  const u=document.createElementNS(NS,'use'); u.setAttribute('href','#i-'+id); s.append(u); return s;
+}
+
+/* ---------- state ---------- */
+let state=load();
+function load(){
+  try{ const s=JSON.parse(localStorage.getItem(LS)); if(s&&typeof s==='object') return {name:String(s.name||''),solved:s.solved||{},hints:s.hints||{}}; }catch(e){}
+  return {name:'',solved:{},hints:{}};
+}
+function save(){ try{ localStorage.setItem(LS,JSON.stringify(state)); }catch(e){} }
+
+const CH=DATA.ch, CATS=DATA.cats;
+const TOTAL=CH.reduce((a,c)=>a+c.pts,0);
+const catById=Object.fromEntries(CATS.map(c=>[c.id,c]));
+let active=CATS[0].id;
+
+const score=()=>Object.values(state.solved).reduce((a,b)=>a+b,0);
+const hintCost=c=>Math.round(c.pts*HINT_RATE);
+function levelOf(p){ const r=p/TOTAL; return r>=.8?'حامل الراية':r>=.5?'محترف':r>=.2?'متسابق':'مستكشف'; }
+
+async function sha(s){
+  const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+/* ---------- clipboard ---------- */
+function flash(btn,msg){ const o=btn.dataset.o||btn.textContent; btn.dataset.o=o; btn.textContent=msg; setTimeout(()=>{btn.textContent=o},1600); }
+async function copy(text,btn){
+  try{ await navigator.clipboard.writeText(text); flash(btn,'تم النسخ'); return; }catch(e){}
+  try{
+    const t=el('textarea',{style:'position:fixed;opacity:0;top:0'}); t.value=text; document.body.append(t); t.select();
+    const ok=document.execCommand('copy'); t.remove(); flash(btn,ok?'تم النسخ':'حدد النص وانسخه يدوياً');
+  }catch(e){ flash(btn,'حدد النص وانسخه يدوياً'); }
+}
+
+/* ---------- hero / score ---------- */
+function resultText(){
+  const n=Object.keys(state.solved).length, s=score();
+  return `🚩 نتيجتي في مسابقة «حامل الراية» CTF\nالاسم: ${state.name||'بدون اسم'}\nالنقاط: ${s} من ${TOTAL}\nالمستوى: ${levelOf(s)}\nالتحديات المحلولة: ${n} من ${CH.length}`;
+}
+function updateScore(){
+  const s=score(), n=Object.keys(state.solved).length;
+  $('#top-score').textContent=s; $('#p-score').textContent=s; $('#p-max').textContent=TOTAL;
+  $('#p-level').textContent=levelOf(s);
+  $('#p-solved').textContent=`${n} من ${CH.length} محلولة`;
+  const hc=Object.keys(state.hints).length; $('#p-hints').textContent=hc?`تلميحات: ${hc}`:'';
+  document.querySelectorAll('#meter .seg').forEach(seg=>{
+    const id=seg.dataset.cat, all=CH.filter(c=>c.cat===id), done=all.filter(c=>state.solved[c.id]!=null).length;
+    seg.firstChild.style.width=(done/all.length*100)+'%';
+  });
+  document.querySelectorAll('.cat').forEach(b=>{
+    const id=b.dataset.cat, all=CH.filter(c=>c.cat===id), done=all.filter(c=>state.solved[c.id]!=null).length;
+    b.querySelector('.cnt').textContent=`${done}/${all.length}`;
+    b.querySelector('.bar i').style.width=(done/all.length*100)+'%';
+  });
+  $('#wa-result').href='https://wa.me/?text='+encodeURIComponent(resultText());
+}
+function buildHero(){
+  $('#f-ch').textContent=CH.length; $('#f-pts').textContent=TOTAL.toLocaleString('en-US');
+  $('#pname').value=state.name;
+  $('#pname').addEventListener('input',e=>{state.name=e.target.value.trim();save();updateScore();});
+  $('#share-result').addEventListener('click',e=>copy(resultText(),e.currentTarget));
+  const m=$('#meter');
+  CATS.forEach(c=>{
+    const seg=el('div',{class:'seg','data-cat':c.id,style:`--c:oklch(var(--cat-l) var(--cat-c) ${c.h})`},el('i'));
+    m.append(seg);
+  });
+  let armed=false,t;
+  const rb=$('#reset');
+  rb.addEventListener('click',()=>{
+    if(!armed){ armed=true; rb.textContent='تأكيد الحذف؟'; t=setTimeout(()=>{armed=false;rb.textContent='إعادة البدء';},3500); return; }
+    clearTimeout(t); armed=false; rb.textContent='إعادة البدء';
+    state={name:state.name,solved:{},hints:{}}; save(); renderArena(); updateScore();
+  });
+}
+
+/* ---------- categories ---------- */
+function buildCats(){
+  const wrap=$('#cats'); wrap.textContent='';
+  CATS.forEach(c=>{
+    const b=el('button',{class:'cat',type:'button','data-cat':c.id,'aria-pressed':String(c.id===active),style:`--h:${c.h}`},
+      el('span',{class:'badge'},ico(c.ico)),
+      el('div',{},el('h3',{text:c.ar}),el('div',{class:'en mono',text:c.en})),
+      el('div',{class:'bar'},el('i')),
+      el('div',{class:'prog'},el('span',{text:'محلول'}),el('b',{class:'cnt mono',text:'0/0'}))
+    );
+    b.addEventListener('click',()=>{
+      active=c.id;
+      document.querySelectorAll('.cat').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.cat===active)));
+      renderArena();
+      $('#arena').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    });
+    wrap.append(b);
+  });
+}
+
+/* ---------- arena ---------- */
+function renderArena(){
+  const c=catById[active], a=$('#arena'); a.textContent=''; a.style.setProperty('--h',c.h);
+  a.append(el('div',{class:'arena-head'},
+    el('span',{class:'badge'},ico(c.ico)),
+    el('div',{},el('h2',{text:c.ar}),el('p',{text:c.blurb}))));
+  const list=el('div',{class:'list'});
+  CH.filter(x=>x.cat===active).forEach(x=>list.append(card(x)));
+  a.append(list);
+  updateScore();
+}
+function card(c){
+  const solved=state.solved[c.id]!=null, hinted=!!state.hints[c.id];
+  const root=el('article',{class:'ch'+(solved?' done':''),id:'ch-'+c.id});
+  const dots=el('span',{class:'dots','aria-hidden':'true'},[1,2,3].map(i=>el('i',{class:i<=c.lvl?'on':''})));
+  root.append(el('header',{class:'ch-head'},
+    el('span',{class:'lvl'},dots,LVL[c.lvl]),
+    el('h3',{text:c.title}),
+    solved?el('span',{class:'tick','aria-label':'تم الحل'},ico('check')):null,
+    el('span',{class:'pts mono',text:(solved?'+'+state.solved[c.id]:c.pts)+' pts'})
+  ));
+  root.append(el('p',{class:'desc',text:c.desc}));
+
+  if(c.kind==='img'){ root.append(stegoBox(c)); }
+  else{
+    root.append(el('pre',{class:'code'+(c.kind==='zw'||c.id==='w3'||c.id==='c3'?' wrapx':''),text:c.content,dir:'ltr'}));
+    if(c.kind==='zw'){
+      root.append(el('div',{class:'btns'},el('button',{class:'btn',type:'button',text:'نسخ النص',onclick:e=>copy(c.content,e.currentTarget)})));
+    }
+  }
+
+  const hintRow=el('div',{class:'hintrow'});
+  if(hinted||solved){ if(hinted) hintRow.append(el('div',{class:'hint',text:'تلميح: '+c.hint})); }
+  else{
+    hintRow.append(el('button',{class:'btn',type:'button',text:`عرض تلميح (−${hintCost(c)} نقطة)`,onclick:()=>{
+      state.hints[c.id]=true; save(); replace(c);
+    }}));
+  }
+  if(hintRow.children.length) root.append(hintRow);
+
+  const fb=el('div',{class:'fb',role:'status'});
+  if(solved){
+    root.append(el('div',{class:'fb ok',text:'أحسنت، تم حل هذا التحدي.'}));
+  }else{
+    const inp=el('input',{class:'input',id:'in-'+c.id,placeholder:'FLAG{...}',autocomplete:'off',spellcheck:'false','aria-label':'الإجابة'});
+    const go=el('button',{class:'btn primary',type:'submit',text:'تحقق'});
+    const form=el('form',{class:'sub'},inp,go);
+    form.addEventListener('submit',async ev=>{
+      ev.preventDefault();
+      const v=inp.value.trim(); if(!v)return;
+      fb.className='fb';
+      if(!/^flag\{.*\}$/i.test(v)){ fb.className='fb bad'; fb.textContent='الصيغة غير صحيحة. اكتب الإجابة هكذا: FLAG{...}'; return; }
+      go.disabled=true;
+      try{
+        const h=await sha(v.toLowerCase());
+        if(h===c.h){
+          const award=c.pts-(state.hints[c.id]?hintCost(c):0);
+          state.solved[c.id]=award; save(); replace(c,true); updateScore();
+        }else{ fb.className='fb bad'; fb.textContent='إجابة غير صحيحة. راجع الأدلة وحاول مرة أخرى.'; }
+      }catch(err){ fb.className='fb bad'; fb.textContent='تعذّر التحقق في هذا المتصفح. افتح الصفحة في متصفح حديث.'; }
+      go.disabled=false;
+    });
+    root.append(form,fb);
+  }
+  return root;
+}
+function replace(c,pop){
+  const old=document.getElementById('ch-'+c.id); if(!old)return;
+  const n=card(c); if(pop) n.classList.add('pop'); old.replaceWith(n);
+}
+
+/* ---------- stego image ---------- */
+function stegoBox(c){
+  const W=640,H=170;
+  const src=document.createElement('canvas'); src.width=W; src.height=H;
+  const x=src.getContext('2d');
+  x.fillStyle='rgb(24,28,40)'; x.fillRect(0,0,W,H);
+  for(let i=0;i<1400;i++){ const d=Math.floor(Math.random()*5)-2; x.fillStyle=`rgb(${24+d},${28+d},${40+d})`; x.fillRect(Math.random()*W,Math.random()*H,2+Math.random()*10,2+Math.random()*6); }
+  x.fillStyle='rgb(34,38,50)'; x.font='bold 30px monospace'; x.textAlign='center'; x.textBaseline='middle';
+  x.fillText(atob(c.content),W/2,H/2);
+  const view=el('canvas',{width:W,height:H,role:'img','aria-label':'صورة داكنة تحتوي على نص مخفي'});
+  const vx=view.getContext('2d');
+  const base=x.getImageData(0,0,W,H);
+  function draw(g){
+    const out=vx.createImageData(W,H), a=base.data, b=out.data;
+    for(let i=0;i<a.length;i+=4){
+      for(let k=0;k<3;k++){ const v=128+(a[i+k]-26)*g; b[i+k]=v<0?0:v>255?255:v; }
+      b[i+3]=255;
+    }
+    vx.putImageData(out,0,0);
+  }
+  draw(1);
+  const rng=el('input',{type:'range',min:1,max:30,value:1,id:'rng-'+c.id,'aria-label':'مستوى التباين'});
+  rng.addEventListener('input',()=>draw(+rng.value));
+  return el('div',{class:'stego-box'},view,el('label',{for:'rng-'+c.id},el('span',{text:'التباين'}),rng));
+}
+
+/* ---------- toolbox ---------- */
+const OPS=[['b64d','Base64 ← نص'],['b64e','نص ← Base64'],['hexd','Hex ← نص'],['bind','Binary ← نص'],['rot','ROT / قيصر'],['xor','XOR بمفتاح hex'],['urld','فك ترميز URL'],['zw','كشف الأحرف الصفرية'],['rev','عكس النص']];
+function bytesToStr(a){ let r=''; a.forEach(v=>r+=String.fromCharCode(v)); return r; }
+function parseHex(s){
+  const h=s.replace(/0x|[\s,:]/gi,''); if(!h||h.length%2||/[^0-9a-f]/i.test(h)) throw new Error('hex');
+  const a=new Uint8Array(h.length/2); for(let i=0;i<a.length;i++) a[i]=parseInt(h.substr(i*2,2),16); return a;
+}
+function run(op,s,n,key){
+  switch(op){
+    case 'b64d':{ const t=s.trim().replace(/-/g,'+').replace(/_/g,'/'); const pad=t+'==='.slice((t.length+3)%4); const bin=atob(pad); try{ return new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(bin,c=>c.charCodeAt(0))); }catch(e){ return bin; } }
+    case 'b64e':{ const b=new TextEncoder().encode(s); return btoa(bytesToStr(b)); }
+    case 'hexd': return bytesToStr(parseHex(s));
+    case 'bind':{ const b=s.replace(/[^01]/g,''); let r=''; for(let i=0;i+8<=b.length;i+=8) r+=String.fromCharCode(parseInt(b.substr(i,8),2)); return r; }
+    case 'rot': return s.replace(/[a-z]/gi,ch=>{ const base=ch<='Z'?65:97; return String.fromCharCode(((ch.charCodeAt(0)-base+n)%26+26)%26+base); });
+    case 'xor':{ const a=parseHex(s), k=parseHex(key||''); return bytesToStr(a.map((v,i)=>v^k[i%k.length])); }
+    case 'urld': return decodeURIComponent(s);
+    case 'zw':{ let bits=''; for(const ch of s){ if(ch==='​')bits+='0'; else if(ch==='‌')bits+='1'; } if(!bits) return 'لا توجد أحرف مخفية في هذا النص.'; let r=''; for(let i=0;i+8<=bits.length;i+=8) r+=String.fromCharCode(parseInt(bits.substr(i,8),2)); return r; }
+    case 'rev': return [...s].reverse().join('');
+  }
+  return '';
+}
+function buildTools(){
+  const sel=$('#t-op'); OPS.forEach(([v,l])=>sel.append(el('option',{value:v,text:l})));
+  const inp=$('#t-in'), out=$('#t-out'), n=$('#t-n'), key=$('#t-key');
+  const go=()=>{
+    n.hidden=sel.value!=='rot'; key.hidden=sel.value!=='xor';
+    try{ out.value=inp.value?run(sel.value,inp.value,parseInt(n.value||'0',10),key.value):''; }
+    catch(e){ out.value='تعذّر المعالجة. تحقق من الإدخال.'; }
+  };
+  [sel,inp,n,key].forEach(e=>e.addEventListener('input',go));
+  go();
+}
+
+/* ---------- invite ---------- */
+function buildInvite(){
+  const link=$('#inv-link'); let href='';
+  try{ href=location.href.split('#')[0]; }catch(e){}
+  link.value=href; link.placeholder='الصق رابط المسابقة هنا';
+  const msg=()=>`🚩 هل أنت جاهز لتكون «حامل الراية»؟\nمسابقة CTF في الأمن السيبراني: 8 مجالات و${CH.length} تحدياً، وكل شيء يعمل من المتصفح.\nابدأ الآن: ${link.value.trim()}`;
+  const upd=()=>{ $('#wa-invite').href='https://wa.me/?text='+encodeURIComponent(msg()); };
+  link.addEventListener('input',upd); upd();
+  $('#copy-invite').addEventListener('click',e=>copy(msg(),e.currentTarget));
+  $('#copy-link').addEventListener('click',e=>copy(link.value.trim(),e.currentTarget));
+}
+
+buildHero(); buildCats(); buildTools(); buildInvite(); renderArena();
+})();
+</script>
+
+</body>
+</html>
